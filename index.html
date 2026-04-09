@@ -1,18 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Sketch</title>
-
-    <link rel="stylesheet" type="text/css" href="style.css">
-
-    <script src="libraries/p5.min.js"></script>
-    <script src="libraries/p5.sound.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   </head>
+  <title> MA2806</title>
 
+ <h1>      students and caffeine consumption</h1> 
   <body>
-    <script src="sketch.js"></script>
+    <script>
+      let numRows = 2;
+      let numCols = 5;
+      let size = 50;
+      let cups = [];
+      let totalCups = numRows * numCols; //ten,,, duh
+      let emptyCup;
+      let fullCup;
+
+      function preload() {
+        emptyCup = loadImage("images/blank-coffee.png"), size;
+        fullCup = loadImage("images/black-coffee.png"), size;
+        console.log("img load successfully");
+      }
+
+      function setup() {
+        createCanvas(windowWidth, windowHeight);
+        imageMode(CENTER);
+
+        // first 6 = full, next 4 = empty
+        for (let i = 0; i < totalCups; i++) {
+          if (i < 6) {
+            cups.push("full");
+          } else {
+            cups.push("empty");
+          }
+        }
+      }
+
+      function draw() {
+        background(245);
+
+        let index = 0;
+// lil calm array basically
+        for (let row = 0; row < numRows; row++) {
+          for (let col = 0; col < numCols; col++) {
+            let x = col * size + size;
+            let y = row * size + size;
+
+            if (cups[index] === "full") {
+              image(fullCup, x, y, size, size);
+            } else {
+              image(emptyCup, x, y, size, size);
+            }
+
+            index++;
+          }
+        }
+
+        text("6/10 participants drink coffee", 50, 200);
+        textSize(20);
+      }
+    </script>
   </body>
 </html>
