@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
   </head>
-  <title> MA2806</title>
+  <title>MA2806</title>
 
- <h1>      students and caffeine consumption</h1> 
+  <h1>students and caffeine consumption</h1>
   <body>
     <script>
       let numRows = 2;
@@ -21,8 +21,8 @@
       let fullCup;
 
       function preload() {
-        emptyCup = loadImage("images/blank-coffee.png"), size;
-        fullCup = loadImage("images/black-coffee.png"), size;
+        ((emptyCup = loadImage("images/blank-coffee.png")), size);
+        ((fullCup = loadImage("images/black-coffee.png")), size);
         console.log("img load successfully");
       }
 
@@ -44,7 +44,7 @@
         background(245);
 
         let index = 0;
-// lil calm array basically
+        // lil calm array basically
         for (let row = 0; row < numRows; row++) {
           for (let col = 0; col < numCols; col++) {
             let x = col * size + size;
