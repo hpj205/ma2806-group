@@ -23,21 +23,18 @@
       function preload() {
         ((emptyCup = loadImage("images/blank-coffee.png")), size);
         ((fullCup = loadImage("images/black-coffee.png")), size);
-        console.log("img load successfully");
+        
+        table = loadTable("data\students-caffeine-data.csv", "csv", "header")
       }
 
       function setup() {
         createCanvas(windowWidth, windowHeight);
         imageMode(CENTER);
 
-        // first 6 = full, next 4 = empty
-        for (let i = 0; i < totalCups; i++) {
-          if (i < 6) {
-            cups.push("full");
-          } else {
-            cups.push("empty");
-          }
-        }
+        
+      
+      
+      
       }
 
       function draw() {
