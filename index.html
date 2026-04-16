@@ -12,70 +12,95 @@
   <h1>students and caffeine consumption</h1>
   <body>
     <script>
-
-
-/** header names: 
+      /** header names: 
 timestamp	year	department	gender	ethnicity	unpaid-res	which-unpaid	paid-work	which-paid	daily-intake	choice	time-drank	why-drink	stress	ask
 
 **/
       let numRows = 2;
       let numCols = 5;
       let size = 50;
-      let cups = [];
-      let totalCups = numRows * numCols; //ten,,, duh
-      let emptyCup;
-      let fullCup;
+      //let cups = [];
+      // let totalCups = numRows * numCols; //ten,,, duh
+      // let emptyCup;
+      // let fullCup;
       let c1, c2;
+      let table;
+      let people = [];
 
       function preload() {
-        ((emptyCup = loadImage("images/blank-coffee.png")), size);
-        ((fullCup = loadImage("images/black-coffee.png")), size);
-        
-        table = loadTable("data/students-caffeine-data.csv", "csv", "header")
+        //((emptyCup = loadImage("images/blank-coffee.png")), size);
+        //  ((fullCup = loadImage("images/black-coffee.png")), size);
+
+        table = loadTable("data/students-caffeine-data.csv", "csv", "header");
       }
 
-
-
-function setup() {
+      function setup() {
         createCanvas(windowWidth, windowHeight);
         imageMode(CENTER);
-        c1 = color(255, 197, 145);//day
-        c2 = color(52, 46, 143);//dusk
+
+        for (let i = 0; i < table.getRowCount(); i++) {
+          let time = table.getString(i, "time-drank"); // yeahhh dumb it down
+          let intakeString = table.getString(i, "daily-intake"); // this is because data wasnt collected poorly,, partially my bad
+         let intake;
+          // so i'll get a cheeky if-else statement to ensure all text is just,,, converted to 0 automatically i dont care
+
+          
+          // the reason its here is ebcause draw() will run it every single frame
+          if (intakeString.includes("3+")) {
+            intake = 4;
+          } else if (intakeString.includes("2-3")) {
+            intake = 2.5;
+          } else if (intakeString.includes("1")) {
+            intake = 1;
+          } else {
+            intake = 0; // includes stupid text
+          }
+
+          let y = getY(time); // timeline is vertical...// its always about x lets give y some love
+          let x = random(100, width - 100);
+          let size = map(intake, 0, 4, 5, 30); // peoplespheres
+
+          people.push({ x, y, size });
+        }
+      }
+
+      // peoplespheres
+
+      function drawGradient() {
+        // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
+        // because i am a chud
+        c1 = color(255, 197, 145); //day
+        c2 = color(52, 46, 143); //dusk
+
+        for (let y = 0; y < height; y++) {
+          n = map(y, 0, height, 0, 1);
+          let newc = lerpColor(c1, c2, n);
+          stroke(newc);
+          line(0, y, width, y);
+        }
+      }
+
+      // basically, time of caffeine intake, put it somewhere random between these designated areas
+      function getY(time) {
+        if (time === "morning") return random(height * 0.1, height * 0.3);
+        if (time === "afternoon") return random(height * 0.4, height * 0.6);
+        if (time === "night") return random(height * 0.7, height * 0.9);
+
+        let x = random(100, width - 100);
     
-        for(let y=0; y<height; y++){
-    n = map(y,0,height,0,1);
-    let newc = lerpColor(c1,c2, n);
-    stroke(newc);
-    line(0,y,width, y);
-  }
-}
+      }
 
+      function draw() {
+        drawGradient();
 
+        for (let p of people) {
+          fill(255, 120);
+          noStroke();
+          ellipse(p.x, p.y, p.size);
+        }
+      }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
+      /*
         //DAILY COFFE INTAKE ISTOPTE
         cups = [];
 
@@ -114,14 +139,6 @@ function setup() {
         text("7/10 participants drink coffee", 50, 200);
         textSize(20);
         */
-
-
-
-
-
-
-
-      
     </script>
   </body>
 </html>
