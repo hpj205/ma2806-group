@@ -12,6 +12,12 @@
   <h1>students and caffeine consumption</h1>
   <body>
     <script>
+
+
+/** header names: 
+timestamp	year	department	gender	ethnicity	unpaid-res	which-unpaid	paid-work	which-paid	daily-intake	choice	time-drank	why-drink	stress	ask
+
+**/
       let numRows = 2;
       let numCols = 5;
       let size = 50;
@@ -19,27 +25,75 @@
       let totalCups = numRows * numCols; //ten,,, duh
       let emptyCup;
       let fullCup;
+      let c1, c2;
 
       function preload() {
         ((emptyCup = loadImage("images/blank-coffee.png")), size);
         ((fullCup = loadImage("images/black-coffee.png")), size);
         
-        table = loadTable("data\students-caffeine-data.csv", "csv", "header")
+        table = loadTable("data/students-caffeine-data.csv", "csv", "header")
       }
 
-      function setup() {
+
+
+function setup() {
         createCanvas(windowWidth, windowHeight);
         imageMode(CENTER);
+        c1 = color(255, 197, 145);//day
+        c2 = color(52, 46, 143);//dusk
+    
+        for(let y=0; y<height; y++){
+    n = map(y,0,height,0,1);
+    let newc = lerpColor(c1,c2, n);
+    stroke(newc);
+    line(0,y,width, y);
+  }
+}
 
-        
-      
-      
-      
-      }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+        //DAILY COFFE INTAKE ISTOPTE
+        cups = [];
+
+        for (let i = 0; i < table.getRowCount(); i++){
+          let intake = int(table.getString(i, "daily-intake"));
+
+          if (intake >0){
+            cups.push("full");
+          }
+            else{
+              cups.push("empty");
+            }
+          }
+
+        }
+      
       function draw() {
         background(245);
-
         let index = 0;
         // lil calm array basically
         for (let row = 0; row < numRows; row++) {
@@ -57,9 +111,17 @@
           }
         }
 
-        text("6/10 participants drink coffee", 50, 200);
+        text("7/10 participants drink coffee", 50, 200);
         textSize(20);
-      }
+        */
+
+
+
+
+
+
+
+      
     </script>
   </body>
 </html>
