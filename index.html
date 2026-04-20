@@ -1,144 +1,169 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
-  </head>
-  <title>MA2806</title>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+</head>
+<body>
 
-  <h1>students and caffeine consumption</h1>
-  <body>
-    <script>
-      /** header names: 
+<h1>students and caffeine consumption</h1>
+
+
+<div class="viz-container">
+  <div class="viz-box">
+    <h3> daily hot drinks intake</h3>
+    <div id="isotope-div"></div>
+  </div>
+
+  <div class="viz-box">
+    <h3> caffeine bubble chart</h3>
+    <div id="bubble-div"></div>
+  </div>
+</div>
+
+<script>
+  // loading data ONCE globally for ease
+
+
+  /** header names: 
 timestamp	year	department	gender	ethnicity	unpaid-res	which-unpaid	paid-work	which-paid	daily-intake	choice	time-drank	why-drink	stress	ask
 
 **/
-      let numRows = 2;
-      let numCols = 5;
-      let size = 50;
-      //let cups = [];
-      // let totalCups = numRows * numCols; //ten,,, duh
-      // let emptyCup;
-      // let fullCup;
-      let c1, c2;
-      let table;
-      let people = [];
 
-      function preload() {
-        //((emptyCup = loadImage("images/blank-coffee.png")), size);
-        //  ((fullCup = loadImage("images/black-coffee.png")), size);
-
-        table = loadTable("data/students-caffeine-data.csv", "csv", "header");
+  let globalTable;
+  let globalEmptyCup, globalFullCup;
+  
+  function preload() {
+    globalEmptyCup = loadImage("images/blank-coffee.png");
+    globalFullCup = loadImage("images/black-coffee.png");
+    globalTable = loadTable("data/students-caffeine-data.csv", "csv", "header");
+  }
+  
+  // COFFEE ISOTOPE SKETCH 
+  function isotopeSketch(p) {
+    let numRows = 2;
+    let numCols = 5;
+    let cellSize = 50;
+    let cups = [];
+    
+    p.setup = function() {
+      p.createCanvas(400, 300);
+      p.imageMode(p.CENTER);
+      
+      // lets get these data
+      cups = [];
+      for (let i = 0; i < 10 && i < globalTable.getRowCount(); i++) {
+        let intakeString = globalTable.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
+        let intake = 0;
+       // the reason its here is ebcause draw() will run it every single frame
+        if (intakeString.includes("3+")) intake = 4;
+        else if (intakeString.includes("2-3")) intake = 2.5;
+        else if (intakeString.includes("1")) intake = 1;
+        
+        cups.push(intake > 0 ? "full" : "empty");
       }
-
-      function setup() {
-        createCanvas(windowWidth, windowHeight);
-        imageMode(CENTER);
-
-        for (let i = 0; i < table.getRowCount(); i++) {
-          let time = table.getString(i, "time-drank"); // yeahhh dumb it down
-          let intakeString = table.getString(i, "daily-intake"); // this is because data wasnt collected poorly,, partially my bad
-         let intake;
-          // so i'll get a cheeky if-else statement to ensure all text is just,,, converted to 0 automatically i dont care
-
+    };
+    
+    p.draw = function() {
+      p.background(245);
+      let index = 0;
+      
+      for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+          let x = col * cellSize + cellSize;
+          let y = row * cellSize + cellSize;
           
-          // the reason its here is ebcause draw() will run it every single frame
-          if (intakeString.includes("3+")) {
-            intake = 4;
-          } else if (intakeString.includes("2-3")) {
-            intake = 2.5;
-          } else if (intakeString.includes("1")) {
-            intake = 1;
-          } else {
-            intake = 0; // includes stupid text
+          if (index < cups.length) {
+            if (cups[index] === "full") {
+              p.image(globalFullCup, x, y, cellSize, cellSize);
+            } else {
+              p.image(globalEmptyCup, x, y, cellSize, cellSize);
+            }
           }
-
-          let y = getY(time); // timeline is vertical...// its always about x lets give y some love
-          let x = random(100, width - 100);
-          let size = map(intake, 0, 4, 5, 30); // peoplespheres
-
-          people.push({ x, y, size });
+          index++;
         }
       }
-
-      // peoplespheres
-
-      function drawGradient() {
+      
+      let drinkerCount = cups.filter(cup => cup === "full").length;
+      p.fill(0);
+      p.textSize(14);
+      p.textAlign(p.CENTER);
+      p.text(`${drinkerCount}/10 drink coffee`, p.width/2, p.height - 20);
+    };
+  }
+  
+  // BUBBLE SKETCH (runs only in its div)
+  function bubbleSketch(p) {
+    let people = [];
+    let c1, c2;
+    
+    p.setup = function() {
+      p.createCanvas(500, 500);
+      
+      // process data
+      for (let i = 0; i < globalTable.getRowCount(); i++) {
+        let time = globalTable.getString(i, "time-drank");
+        let intakeString = globalTable.getString(i, "daily-intake");
+        let intake = 0;
+        
+        if (intakeString.includes("3+")) intake = 4;
+        else if (intakeString.includes("2-3")) intake = 2.5;
+        else if (intakeString.includes("1")) intake = 1;
+        
+        let y = p.getY(time);
+        let x = p.random(80, p.width - 80);
+        let bubbleSize = p.map(intake, 0, 4, 30, 80);
+        
+        people.push({ x, y, size: bubbleSize });
+      }
+    };
+    
+    p.drawGradient = function() {
         // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
         // because i am a chud
-        c1 = color(255, 197, 145); //day
-        c2 = color(52, 46, 143); //dusk
 
-        for (let y = 0; y < height; y++) {
-          n = map(y, 0, height, 0, 1);
-          let newc = lerpColor(c1, c2, n);
-          stroke(newc);
-          line(0, y, width, y);
-        }
-      }
-
-      // basically, time of caffeine intake, put it somewhere random between these designated areas
-      function getY(time) {
-        if (time === "morning") return random(height * 0.1, height * 0.3);
-        if (time === "afternoon") return random(height * 0.4, height * 0.6);
-        if (time === "night") return random(height * 0.7, height * 0.9);
-
-        let x = random(100, width - 100);
-    
-      }
-
-      function draw() {
-        drawGradient();
-
-        for (let p of people) {
-          fill(255, 120);
-          noStroke();
-          ellipse(p.x, p.y, p.size);
-        }
-      }
-
-      /*
-        //DAILY COFFE INTAKE ISTOPTE
-        cups = [];
-
-        for (let i = 0; i < table.getRowCount(); i++){
-          let intake = int(table.getString(i, "daily-intake"));
-
-          if (intake >0){
-            cups.push("full");
-          }
-            else{
-              cups.push("empty");
-            }
-          }
-
-        }
+      c1 = p.color(255, 197, 145);
+      c2 = p.color(52, 46, 143);
       
-      function draw() {
-        background(245);
-        let index = 0;
-        // lil calm array basically
-        for (let row = 0; row < numRows; row++) {
-          for (let col = 0; col < numCols; col++) {
-            let x = col * size + size;
-            let y = row * size + size;
+      for (let y = 0; y < p.height; y++) {
+        let n = p.map(y, 0, p.height, 0, 1);
+        let newc = p.lerpColor(c1, c2, n);
+        p.stroke(newc);
+        p.line(0, y, p.width, y);
+      }
+    };
+    
+    p.getY = function(time) {
+       // basically, time of caffeine intake, put it somewhere random between these designated areas
+      if (time === "morning") return p.random(p.height * 0.1, p.height * 0.3);
+      if (time === "afternoon") return p.random(p.height * 0.4, p.height * 0.6);
+      if (time === "night") return p.random(p.height * 0.7, p.height * 0.9);
+      return p.random(p.height);
+    };
+    
+    p.draw = function() {
+      p.drawGradient();
+      for (let person of people) {
+        p.fill(255, 120);
+        p.noStroke();
+        p.ellipse(person.x, person.y, person.size);
+      }
+    };
+  }
+  
+  // both visualisations only load once the page hs loaded
+  function startVisualizations() {
+    new p5(isotopeSketch, "isotope-div");
+    new p5(bubbleSketch, "bubble-div");
+  }
+  
+  // letting preload complete yay
+  function setup() {
+    startVisualizations();
+  }
+</script>
 
-            if (cups[index] === "full") {
-              image(fullCup, x, y, size, size);
-            } else {
-              image(emptyCup, x, y, size, size);
-            }
-
-            index++;
-          }
-        }
-
-        text("7/10 participants drink coffee", 50, 200);
-        textSize(20);
-        */
-    </script>
-  </body>
+</body>
 </html>
