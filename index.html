@@ -1,169 +1,326 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  </head>
+  <body>
+    <h1>students and caffeine consumption</h1>
 
-<h1>students and caffeine consumption</h1>
+    <div class="viz-container">
+      <div class="viz-box">
+        <h3>daily hot drinks intake</h3>
+        <div id="isotope-div"></div>
+      </div>
 
+      <div class="viz-box">
+        <h3>caffeine bubble chart</h3>
+        <div id="bubble-div"></div>
+      </div>
 
-<div class="viz-container">
-  <div class="viz-box">
-    <h3> daily hot drinks intake</h3>
-    <div id="isotope-div"></div>
-  </div>
+      <div class="viz-box">
+        <h3>bar chart</h3>
+        <div id="barchart-div"></div>
+      </div>
+    </div>
 
-  <div class="viz-box">
-    <h3> caffeine bubble chart</h3>
-    <div id="bubble-div"></div>
-  </div>
-</div>
+    <script>
+      /** header names:
+            timestamp	year	department	gender	ethnicity	unpaid-res	which-unpaid	paid-work	which-paid	daily-intake	choice	time-drank	why-drink	stress	ask
 
-<script>
-  // loading data ONCE globally for ease
+            **/
 
-
-  /** header names: 
-timestamp	year	department	gender	ethnicity	unpaid-res	which-unpaid	paid-work	which-paid	daily-intake	choice	time-drank	why-drink	stress	ask
-
-**/
-
-  let globalTable;
-  let globalEmptyCup, globalFullCup;
-  
-  function preload() {
-    globalEmptyCup = loadImage("images/blank-coffee.png");
-    globalFullCup = loadImage("images/black-coffee.png");
-    globalTable = loadTable("data/students-caffeine-data.csv", "csv", "header");
-  }
-  
-  // COFFEE ISOTOPE SKETCH 
-  function isotopeSketch(p) {
-    let numRows = 2;
-    let numCols = 5;
-    let cellSize = 50;
-    let cups = [];
-    
-    p.setup = function() {
-      p.createCanvas(400, 300);
-      p.imageMode(p.CENTER);
-      
-      // lets get these data
-      cups = [];
-      for (let i = 0; i < 10 && i < globalTable.getRowCount(); i++) {
-        let intakeString = globalTable.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
-        let intake = 0;
-       // the reason its here is ebcause draw() will run it every single frame
-        if (intakeString.includes("3+")) intake = 4;
-        else if (intakeString.includes("2-3")) intake = 2.5;
-        else if (intakeString.includes("1")) intake = 1;
-        
-        cups.push(intake > 0 ? "full" : "empty");
+      // lil calm global helper function to convert intake strings to numbers for easier processing in visualisations
+      function intakeToNumber(str) {
+        if (str.includes("3+")) return 4;
+        if (str.includes("2-3")) return 2.5;
+        if (str.includes("1")) return 1;
+        return 0;
       }
-    };
-    
-    p.draw = function() {
-      p.background(245);
-      let index = 0;
-      
-      for (let row = 0; row < numRows; row++) {
-        for (let col = 0; col < numCols; col++) {
-          let x = col * cellSize + cellSize;
-          let y = row * cellSize + cellSize;
-          
-          if (index < cups.length) {
-            if (cups[index] === "full") {
-              p.image(globalFullCup, x, y, cellSize, cellSize);
-            } else {
-              p.image(globalEmptyCup, x, y, cellSize, cellSize);
+
+      // COFFEE ISOTOPE SKETCH
+      function isotopeSketch(p) {
+        let table;
+        let numRows = 2;
+        let numCols = 5;
+        let cellSize = 50;
+        let cups = [];
+        p.preload = function () {
+          emptyCup = p.loadImage("images/blank-coffee.png");
+          fullCup = p.loadImage("images/black-coffee.png");
+          table = p.loadTable(
+            "data/students-caffeine-data.csv",
+            "csv",
+            "header",
+          );
+        };
+        p.setup = function () {
+          p.createCanvas(400, 300);
+          p.imageMode(p.CENTER);
+
+          // lets get these data
+          cups = [];
+          for (let i = 0; i < 10 && i < table.getRowCount(); i++) {
+            let intakeString = table.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
+            let intake = 0;
+            // the reason its here is ebcause draw() will run it every single frame
+            if (intakeString.includes("3+")) intake = 4;
+            else if (intakeString.includes("2-3")) intake = 2.5;
+            else if (intakeString.includes("1")) intake = 1;
+
+            cups.push(intake > 0 ? "full" : "empty");
+          }
+        };
+
+        p.draw = function () {
+          p.background(245);
+          let index = 0;
+          // this is for loop :D it goes thru grid n shld fill w full or empty cups based on data for the first 10 students
+          // i will do it for ALL the students... at some point
+          //NOTE complete before submission
+          for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+              let x = col * cellSize + cellSize;
+              let y = row * cellSize + cellSize;
+
+              if (index < cups.length) {
+                if (cups[index] === "full") {
+                  p.image(fullCup, x, y, cellSize, cellSize);
+                } else {
+                  p.image(emptyCup, x, y, cellSize, cellSize);
+                }
+              }
+              index++;
             }
           }
-          index++;
-        }
-      }
-      
-      let drinkerCount = cups.filter(cup => cup === "full").length;
-      p.fill(0);
-      p.textSize(14);
-      p.textAlign(p.CENTER);
-      p.text(`${drinkerCount}/10 drink coffee`, p.width/2, p.height - 20);
-    };
-  }
-  
-  // BUBBLE SKETCH (runs only in its div)
-  function bubbleSketch(p) {
-    let people = [];
-    let c1, c2;
-    
-    p.setup = function() {
-      p.createCanvas(500, 500);
-      
-      // process data
-      for (let i = 0; i < globalTable.getRowCount(); i++) {
-        let time = globalTable.getString(i, "time-drank");
-        let intakeString = globalTable.getString(i, "daily-intake");
-        let intake = 0;
-        
-        if (intakeString.includes("3+")) intake = 4;
-        else if (intakeString.includes("2-3")) intake = 2.5;
-        else if (intakeString.includes("1")) intake = 1;
-        
-        let y = p.getY(time);
-        let x = p.random(80, p.width - 80);
-        let bubbleSize = p.map(intake, 0, 4, 30, 80);
-        
-        people.push({ x, y, size: bubbleSize });
-      }
-    };
-    
-    p.drawGradient = function() {
-        // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
-        // because i am a chud
 
-      c1 = p.color(255, 197, 145);
-      c2 = p.color(52, 46, 143);
-      
-      for (let y = 0; y < p.height; y++) {
-        let n = p.map(y, 0, p.height, 0, 1);
-        let newc = p.lerpColor(c1, c2, n);
-        p.stroke(newc);
-        p.line(0, y, p.width, y);
+          let drinkerCount = cups.filter((cup) => cup === "full").length;
+          p.fill(0);
+          p.textSize(14);
+          p.textAlign(p.CENTER);
+          p.text(`${drinkerCount}/10 drink coffee`, p.width / 2, p.height - 20);
+        };
       }
-    };
-    
-    p.getY = function(time) {
-       // basically, time of caffeine intake, put it somewhere random between these designated areas
-      if (time === "morning") return p.random(p.height * 0.1, p.height * 0.3);
-      if (time === "afternoon") return p.random(p.height * 0.4, p.height * 0.6);
-      if (time === "night") return p.random(p.height * 0.7, p.height * 0.9);
-      return p.random(p.height);
-    };
-    
-    p.draw = function() {
-      p.drawGradient();
-      for (let person of people) {
-        p.fill(255, 120);
-        p.noStroke();
-        p.ellipse(person.x, person.y, person.size);
-      }
-    };
-  }
-  
-  // both visualisations only load once the page hs loaded
-  function startVisualizations() {
-    new p5(isotopeSketch, "isotope-div");
-    new p5(bubbleSketch, "bubble-div");
-  }
-  
-  // letting preload complete yay
-  function setup() {
-    startVisualizations();
-  }
-</script>
 
-</body>
+      // BUBBLE SKETCH (runs only in its div)
+      //NOTE: this sketch doesnt really work as intended, needs to be fixed before submission
+      function bubbleSketch(p) {
+        let people = [];
+        let c1, c2;
+        let table;
+
+        p.preload = function () {
+          table = p.loadTable(
+            "data/students-caffeine-data.csv",
+            "csv",
+            "header",
+          );
+        };
+
+        p.setup = function () {
+          p.createCanvas(500, 500);
+
+          // getting the data
+          // putting it in a format that i can use for the visualisation
+          for (let i = 0; i < table.getRowCount(); i++) {
+            let time = table.getString(i, "time-drank");
+            let intakeString = table.getString(i, "daily-intake");
+            let intake = 0;
+
+            if (intakeString.includes("3+")) intake = 4;
+            else if (intakeString.includes("2-3")) intake = 2.5;
+            else if (intakeString.includes("1")) intake = 1;
+
+            let y = p.getY(time);
+            let x = p.random(80, p.width - 80);
+            let bubbleSize = p.map(intake, 0, 4, 30, 80);
+
+            people.push({ x, y, size: bubbleSize });
+          }
+        };
+
+        p.drawGradient = function () {
+          // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
+          // because i am a chud
+          // also never done a gradient using lerp before so thought it would be fun to try out
+          // i love coding :D
+
+          c1 = p.color(255, 197, 145);
+          c2 = p.color(52, 46, 143);
+
+          for (let y = 0; y < p.height; y++) {
+            let n = p.map(y, 0, p.height, 0, 1);
+            let newc = p.lerpColor(c1, c2, n);
+            p.stroke(newc);
+            p.line(0, y, p.width, y);
+          }
+        };
+
+        p.getY = function (time) {
+          // basically, time of caffeine intake, put it somewhere random between these designated areas
+          // this doesnt rly work how i want it to because they overlap, but for now its a pretty visualisaiton
+          // maybe can find a way to make it make sense so i dont need to fix it LOLOLOLOL
+          if (time === "morning")
+            // do yk how stupidly long it took to realise i needed to use === instead of = here
+            return p.random(p.height * 0.1, p.height * 0.3);
+          if (time === "afternoon")
+            return p.random(p.height * 0.4, p.height * 0.6);
+          if (time === "night") return p.random(p.height * 0.7, p.height * 0.9);
+          return p.random(p.height);
+        };
+
+        p.draw = function () {
+          p.drawGradient();
+          for (let person of people) {
+            // let person of people... is a sentence
+            p.fill(255, 120);
+            p.noStroke();
+            p.ellipse(person.x, person.y, person.size);
+          }
+        };
+      }
+
+      ///BAR CHART (?)
+      //https://editor.p5js.org/kjhollen/sketches/IJDYFAJKm thank you
+      // its a mess here but it WORKS and took me 2 days to fix a stupid little error
+      // so it might stay like this ebcause im tired of it
+      function barChartSketch(p) {
+        let chartTop = 80;
+        let chartBottom = 350;
+        let chartLeft = 80;
+        let chartRight = 380;
+
+        let genders = ["woman", "man", "non-binary", "prefer not to say"]; // yea
+        let avgIntake = [0, 0, 0, 0];
+        let sampleSizes = [0, 0, 0, 0];
+        let table;
+
+        p.preload = function () {
+          table = p.loadTable(
+            "data/students-caffeine-data.csv",
+            "csv",
+            "header",
+          );
+        };
+
+        p.setup = function () {
+          p.createCanvas(400, 400);
+          let sums = [0, 0, 0, 0];
+          let counts = [0, 0, 0, 0];
+
+          // process data rather messily, but it works ig. basically we loop through the data,
+          // get the gender and intake, and add the intake to the sums array and increment the count for that gender
+          for (let i = 0; i < table.getRowCount(); i++) {
+            let gender = table.getString(i, "gender").toLowerCase().trim();
+            4;
+            // not having this string actually took me 2 days to figure out why my code wasnt working
+            // i think i nearly went bald trying to figure this out.....
+            let intakeStr = table.getString(i, "daily-intake");
+            let intake = 0;
+            // basically bc the data is in ranges (not good), just using the avg of the numbers
+            // honestly note to self need ot think abt how to collect better data in the future
+            // this has been the worst project to work with data wise, but also the most fun to visualise with p5 !!!
+            if (intakeStr.includes("3+")) intake = 4;
+            else if (intakeStr.includes("2-3")) intake = 2.5;
+            else if (intakeStr.includes("1")) intake = 1;
+
+            let primaryGender = gender.split(",")[0].trim();
+            let idx = genders.indexOf(primaryGender);
+
+            if (idx !== -1) {
+              sums[idx] += intake;
+              counts[idx]++;
+            }
+          }
+          // oh yea increment time,, then avg intKW
+          for (let i = 0; i < genders.length; i++) {
+            if (counts[i] > 0) {
+              avgIntake[i] = sums[i] / counts[i];
+              sampleSizes[i] = counts[i];
+            }
+          }
+        };
+
+        p.draw = function () {
+          p.background(255);
+
+          let barWidth = 70;
+          let spacing = 20;
+          // i am so tired of for loops
+          for (let i = 0; i < genders.length; i++) {
+            let x = chartLeft + i * (barWidth + spacing);
+            let barHeight = p.map(
+              avgIntake[i],
+              0,
+              4, // yea
+              0,
+              chartBottom - chartTop,
+            );
+            let y = chartBottom - barHeight;
+
+            // i didnt want the colours to be like,,, stereotypical but also wanted them to be intuitive
+            if (genders[i] === "woman") {
+              p.fill(219, 112, 147);
+            } else if (genders[i] === "man") {
+              p.fill(100, 149, 237);
+            } else if (genders[i] === "non-binary") {
+              p.fill(154, 205, 50);
+            } else {
+              p.fill(169, 169, 169);
+            }
+
+            // this is the bar
+
+            p.rect(x, y, barWidth, barHeight);
+
+            p.fill(0);
+            p.noStroke();
+            p.textAlign(p.CENTER);
+            p.textSize(12);
+            p.text(genders[i], x + barWidth / 2, chartBottom + 15);
+
+            p.textSize(11);
+            p.text(avgIntake[i].toFixed(1), x + barWidth / 2, y - 5);
+
+            p.textSize(10);
+            p.fill(100);
+            p.text("n=" + sampleSizes[i], x + barWidth / 2, chartBottom + 30);
+          }
+          // got some text going on
+          p.fill(0);
+          p.textSize(14);
+          p.textAlign(p.CENTER);
+          p.text("average daily caffeine intake", p.width / 2, 30);
+          p.textSize(10);
+          p.fill(100);
+          p.text(
+            "(0 = none, 1 = 1 drink, 2.5 = 2-3 drinks, 4 = 3+ drinks)",
+            p.width / 2,
+            50,
+          );
+
+          p.push();
+          p.translate(25, p.height / 2);
+          p.rotate(-p.HALF_PI);
+          p.textAlign(p.CENTER);
+          p.text("average intake (drinks per day)", 0, 0);
+          p.pop(); // takes me back to my IB compsci days... ahh.. when i
+        };
+      }
+
+      // visualisations only load once the page hs loaded
+      function startVisualizations() {
+        new p5(isotopeSketch, "isotope-div");
+        new p5(bubbleSketch, "bubble-div");
+        new p5(barChartSketch, "barchart-div");
+      }
+
+      // letting preload complete yay
+      window.onload = function () {
+        startVisualizations();
+      };
+    </script>
+  </body>
 </html>
