@@ -16,12 +16,12 @@
       </div>
 
       <div class="viz-box">
-        <h3>caffeine bubble chart</h3>
-        <div id="bubble-div"></div>
+        <h3>dot plot</h3>
+        <div id="dotplot-div"></div>
       </div>
 
       <div class="viz-box">
-        <h3>bar chart</h3>
+        <h3></h3>
         <div id="barchart-div"></div>
       </div>
     </div>
@@ -32,7 +32,11 @@
 
             **/
 
+            
+
       // lil calm global helper function to convert intake strings to numbers for easier processing in visualisations
+      // in retrospect the data collection was... terrible
+      // we move regardless
       function intakeToNumber(str) {
         if (str.includes("3+")) return 4;
         if (str.includes("2-3")) return 2.5;
@@ -40,7 +44,7 @@
         return 0;
       }
 
-      // COFFEE ISOTOPE SKETCH
+      // hot drinks ISOTOPE SKETCH
       function isotopeSketch(p) {
         let table;
         let numRows = 2;
@@ -62,7 +66,7 @@
 
           // lets get these data
           cups = [];
-          for (let i = 0; i < 10 && i < table.getRowCount(); i++) {
+          for (let i = 0; (i < 77) & (i < table.getRowCount()); i++) {
             let intakeString = table.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
             let intake = 0;
             // the reason its here is ebcause draw() will run it every single frame
@@ -100,19 +104,22 @@
           p.fill(0);
           p.textSize(14);
           p.textAlign(p.CENTER);
-          p.text(`${drinkerCount}/10 drink coffee`, p.width / 2, p.height - 20);
+          p.text(
+            `${drinkerCount} prefer hot drinks as a source of caffeine`,
+            p.width / 2,
+            p.height - 20,
+          );
         };
       }
 
+      // DOT PLOT SKETCH
+      // relationship between caffeine intake, stress, un/paid work
+      //https://www.youtube.com/watch?v=Yf6n-QizlHA&t=247s
+      // thank you
+      // there is a youtube video for everthing
 
-      /**
-       * 
-       * ====== IT DOESNT WORK.. BUT I'LL LEAVE IT IN =====
-      // BUBBLE SKETCH (runs only in its div)
-      //NOTE: this sketch doesnt really work as intended, needs to be fixed before submission
-      function bubbleSketch(p) {
+      function dotPlotSketch(p) {
         let people = [];
-        let c1, c2;
         let table;
 
         p.preload = function () {
@@ -123,84 +130,117 @@
           );
         };
 
-        let xPositions = {
-          morning: 125,
-          afternoon: 250,
-          night: 375,
-        };
+        // holy helper function
+        function intakeToNumber(str) {
+          if (str.includes("3+")) return 4;
+          if (str.includes("2-3")) return 2.5;
+          if (str.includes("1")) return 1;
+          return 0;
+        }
+
+        function getColor(stress) {
+          if (stress < 4) return p.color(100, 180, 255); // blue for lower stress
+          if (stress <= 7) return p.color(255, 205, 80); // yellow for medium stress
+          return p.color(255, 90, 90); // red for highest stress
+        }
 
         p.setup = function () {
           p.createCanvas(500, 500);
 
-          // getting the data
-          // putting it in a format that i can use for the visualisation
+          let yLevels = {
+            0: 420,
+            1: 320,
+            2.5: 220,
+            4: 120,
+          };
+
+          let xPos = {
+            yes: 150,
+            no: 350,
+          };
+
+          let offsets = {};
+          // no cardi b
+
           for (let i = 0; i < table.getRowCount(); i++) {
-            let time = table.getString(i, "time-drank");
-            let intakeString = table.getString(i, "daily-intake");
-            let intake = 0;
+            let work = table.getString(i, "paid-work").toLowerCase().trim();
+            let stress = parseInt(table.getString(i, "stress"));
+            let intakeStr = table.getString(i, "daily-intake");
+            let intake = intakeToNumber(intakeStr);
 
-            if (intakeString.includes("3+")) intake = 4;
-            else if (intakeString.includes("2-3")) intake = 2.5;
-            else if (intakeString.includes("1")) intake = 1;
-            let bubbleSize = p.map(intake, 0, 4, 28, 84);
+            // let us normalize the work variable to just "yes" or "no" for easier processing
+            if (work.includes("yes")) work = "yes";
+            else work = "no";
 
-            let x = p.getX(time);
-            let y = p.random(p.height * 0.15, p.height * 0.85);
+            // unique key  for each work and intake combo
+            // this is cuz we r stacking dots for ppl
+            // need to offset otherwise its gonna look a whole mess
+            // init
+
+            let key = work + "-" + intake;
+
+            if (!offsets[key]) offsets[key] = 0;
+
+            let x = xPos[work] + offsets[key] * 12;
+            let y = yLevels[intake];
+            // love a good increment operator :D
+            offsets[key]++;
 
             people.push({
               x,
               y,
-              baseY: y,
-              size: bubbleSize,
-              time: time,
-              intake: intake,
+              stress,
             });
-          
           }
-        };
-// gradient
-        p.drawGradient = function () {
-          // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
-          // because i am a chud
-          // also never done a gradient using lerp before so thought it would be fun to try out
-          // i love coding :D
-
-          c1 = p.color(255, 197, 145);
-          c2 = p.color(52, 46, 143);
-
-          for (let y = 0; y < p.height; y++) {
-            let n = p.map(y, 0, p.height, 0, 1);
-            let newc = p.lerpColor(c1, c2, n);
-            p.stroke(newc);
-            p.line(0, y, p.width, y);
-          }
-        };
-
-        p.getX = function (time) {
-          // basically, time of caffeine intake, put it somewhere random between these designated areas
-          // this doesnt rly work how i want it to because they overlap, but for now its a pretty visualisaiton
-          // maybe can find a way to make it make sense so i dont need to fix it LOLOLOLOL
-          if (time === "morning")
-            // do yk how stupidly long it took to realise i needed to use === instead of = here
-            return p.random(p.height * 0.1, p.height * 0.3);
-          if (time === "afternoon")
-            return p.random(p.height * 0.4, p.height * 0.6);
-          if (time === "night") return p.random(p.height * 0.7, p.height * 0.9);
-          return p.random(p.height);
         };
 
         p.draw = function () {
-          p.drawGradient();
+          p.background(255);
+
+          // titles
+          p.fill(0);
+          p.textAlign(p.CENTER);
+          p.textSize(14);
+          p.text("paid work", 150, 60);
+          p.text("unpaid work", 350, 60);
+
+          // y axis labels
+          p.textAlign(p.RIGHT);
+          p.textSize(12);
+          p.text("3+", 80, 120);
+          p.text("2–3", 80, 220);
+          p.text("1", 80, 320);
+          p.text("0", 80, 420);
+          p.text("drinks per day", 80, 60);
+          // dots
           for (let person of people) {
-            // let person of people... is a sentence
-            p.fill(255, 120);
+            p.fill(getColor(person.stress));
             p.noStroke();
-            p.ellipse(person.x, person.y, person.size);
+            p.ellipse(person.x, person.y, 10);
           }
+
+          // legend
+          p.fill(100);
+          p.textSize(12);
+          p.textAlign(p.LEFT);
+          p.text("percieved stress level", 150, 480);
+          p.fill(100, 180, 255);
+          p.ellipse(300, 475, 10);
+          p.fill(255, 205, 80);
+          p.ellipse(380, 475, 10);
+
+          p.fill(255, 90, 90);
+          p.ellipse(460, 475, 10);
+
+          p.fill(0);
+
+          p.textAlign(p.LEFT);
+          p.textSize(10);
+          p.text("0–3", 315, 480);
+          p.text("4–7", 395, 480);
+          p.text("8–10", 475, 480);
         };
       }
-
-      **/
 
       ///BAR CHART (?)
       //https://editor.p5js.org/kjhollen/sketches/IJDYFAJKm thank you
@@ -333,14 +373,113 @@
       // visualisations only load once the page hs loaded
       function startVisualizations() {
         new p5(isotopeSketch, "isotope-div");
-       // new p5(bubbleSketch, "bubble-div"); rip bubble sketch doesnt work but its ok
+        // new p5(bubbleSketch, "bubble-div"); rip bubble sketch doesnt work but its ok
         new p5(barChartSketch, "barchart-div");
+        new p5(dotPlotSketch, "dotplot-div");
       }
 
       // letting preload complete yay
       window.onload = function () {
         startVisualizations();
       };
+
+      // =============== CODE GRAVEYARD ===============
+      /**
+       * 
+       * ====== IT DOESNT WORK.. BUT I'LL LEAVE IT IN =====
+      // BUBBLE SKETCH (runs only in its div)
+      //NOTE: this sketch doesnt really work as intended, needs to be fixed before submission
+      function bubbleSketch(p) {
+        let people = [];
+        let c1, c2;
+        let table;
+
+        p.preload = function () {
+          table = p.loadTable(
+            "data/students-caffeine-data.csv",
+            "csv",
+            "header",
+          );
+        };
+
+        let xPositions = {
+          morning: 125,
+          afternoon: 250,
+          night: 375,
+        };
+
+        p.setup = function () {
+          p.createCanvas(500, 500);
+
+          // getting the data
+          // putting it in a format that i can use for the visualisation
+          for (let i = 0; i < table.getRowCount(); i++) {
+            let time = table.getString(i, "time-drank");
+            let intakeString = table.getString(i, "daily-intake");
+            let intake = 0;
+
+            if (intakeString.includes("3+")) intake = 4;
+            else if (intakeString.includes("2-3")) intake = 2.5;
+            else if (intakeString.includes("1")) intake = 1;
+            let bubbleSize = p.map(intake, 0, 4, 28, 84);
+
+            let x = p.getX(time);
+            let y = p.random(p.height * 0.15, p.height * 0.85);
+
+            people.push({
+              x,
+              y,
+              baseY: y,
+              size: bubbleSize,
+              time: time,
+              intake: intake,
+            });
+          
+          }
+        };
+// gradient
+        p.drawGradient = function () {
+          // i ripped this from https://editor.p5js.org/evebdn/sketches/O9G35ueZv
+          // because i am a chud
+          // also never done a gradient using lerp before so thought it would be fun to try out
+          // i love coding :D
+
+          c1 = p.color(255, 197, 145);
+          c2 = p.color(52, 46, 143);
+
+          for (let y = 0; y < p.height; y++) {
+            let n = p.map(y, 0, p.height, 0, 1);
+            let newc = p.lerpColor(c1, c2, n);
+            p.stroke(newc);
+            p.line(0, y, p.width, y);
+          }
+        };
+
+        p.getX = function (time) {
+          // basically, time of caffeine intake, put it somewhere random between these designated areas
+          // this doesnt rly work how i want it to because they overlap, but for now its a pretty visualisaiton
+          // maybe can find a way to make it make sense so i dont need to fix it LOLOLOLOL
+          if (time === "morning")
+            // do yk how stupidly long it took to realise i needed to use === instead of = here
+            return p.random(p.height * 0.1, p.height * 0.3);
+          if (time === "afternoon")
+            return p.random(p.height * 0.4, p.height * 0.6);
+          if (time === "night") return p.random(p.height * 0.7, p.height * 0.9);
+          return p.random(p.height);
+        };
+
+        p.draw = function () {
+          p.drawGradient();
+          for (let person of people) {
+            // let person of people... is a sentence
+            p.fill(255, 120);
+            p.noStroke();
+            p.ellipse(person.x, person.y, person.size);
+          }
+        };
+      }
+
+      **/
     </script>
   </body>
 </html>
