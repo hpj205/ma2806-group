@@ -66,6 +66,7 @@
         let table;
         let responses = [];
         let hotImg, energyImg, fizzyImg, noneImg;
+        let icons = [];
 
         p.preload = function () {
           table = p.loadTable(
@@ -102,9 +103,10 @@
             } else if (choice.includes("fizzy")) {
               type = "fizzy";
             }
+             
+            responses.sort((a, b) => a.type.localeCompare(b.type));// keeps it organised by type of drink
+            responses.push({ type: type, scale: 1 }); //for hover effect, just to make it more interactive
 
-            responses.push(type);
-            responses.sort(); // keeps it looking organised
             // also allows for easier understanding of the data
           }
         };
@@ -129,26 +131,25 @@
             let x = col * size + size;
             let y = row * size + size + 10; // extra room #annoying
 
-            let type = responses[i];
+            let icon = responses[i];
+            let hovered = p.dist(p.mouseX, p.mouseY, x, y) < 20;
+            icon.scale = p.lerp(icon.scale, hovered ? 1.35 : 1, 0.15);
+            let type = icon.type;
 
             if (type === "hot") {
               // haha if type === hot
-              p.image(hotImg, x, y, size, size);
+              p.image(hotImg, x, y, size * icon.scale, size * icon.scale);
               hotCount++;
             } else if (type === "energy") {
-              p.image(energyImg, x, y, size, size);
+              p.image(energyImg, x, y, size * icon.scale, size * icon.scale);
               energyCount++;
             } else if (type === "fizzy") {
-              p.image(fizzyImg, x, y, size, size);
+              p.image(fizzyImg, x, y, size * icon.scale, size * icon.scale);
               fizzyCount++;
             } else {
-              p.image(noneImg, x, y, size, size);
+              p.image(noneImg, x, y, size * icon.scale, size * icon.scale);
               noneCount++;
             }
-
-
-
-            
           }
           // subtitle
           p.textSize(10);
@@ -170,6 +171,7 @@
           // if type is hot, energy, fizzy, or none
           // draw the correct icon
           // and  text with count in the legend #legend
+      
           p.image(hotImg, 20, y - 5, 20, 20);
           p.text(`hot (${hotCount})`, 35, y);
 
