@@ -7,24 +7,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   </head>
   <body>
-    <h1>students and caffeine consumption</h1>
+    <h1>MA2806: Data Visualizations</h1>
+    <h2>
+      Relationship between caffeine consumption and stress amongst university
+      students
+    </h2>
+
+    we conducted a survey of 76 university students, exploring the relationship
+    between caffeine consumption and stress levels, as well as factors such as
+    paid/unpaid work. <br />
+    gender, ethnicity, taking a feminist approach to data collection and
+    visualisation, we aimed to create inclusive and accessible visualisations
+    that challenge traditional narratives around caffeine consumption and
+    stress. <br />
+    our data collection process was influenced by feminist principles,
+    prioritising inclusivity and accessibility. <br />
 
     <div class="viz-container">
       <div class="viz-box">
-        <h3>daily hot drinks intake</h3>
+        <h3>student's preferred caffeine source</h3>
         <div id="isotope-div"></div>
       </div>
 
       <div class="viz-box">
-        <h3>dot plot</h3>
+        <h3>perceived stress levels, paid/unpaid work, and caffeine intake</h3>
         <div id="dotplot-div"></div>
       </div>
 
       <div class="viz-box">
-        <h3></h3>
+        <h3>gender and caffeine consumption</h3>
         <div id="barchart-div"></div>
       </div>
-
     </div>
 
     <script>
@@ -43,76 +56,129 @@
         return 0;
       }
 
-      // hot drinks ISOTOPE SKETCH
-       /**
+      // ============== COMBINED ISOTOPE SKETCH  ===============
+
       function isotopeSketch(p) {
+        // least stressful visualisation
+        // this was just for hot drinks, i was gna do separate ones then realised
+        // that just creating 1 sketch is easier and looks better
+        // genuinely took like an hr so calm
         let table;
-        let numRows = 2;
-        let numCols = 5;
-        let cellSize = 50;
-        let cups = [];
+        let responses = [];
+        let hotImg, energyImg, fizzyImg, noneImg;
+
         p.preload = function () {
-          emptyCup = p.loadImage("images/blank-coffee.png");
-          fullCup = p.loadImage("images/black-coffee.png");
           table = p.loadTable(
             "data/students-caffeine-data.csv",
             "csv",
             "header",
           );
+
+          hotImg = p.loadImage("images/black-coffee.png");
+          energyImg = p.loadImage("images/energy-drink.png");
+          fizzyImg = p.loadImage("images/fizzy-drink.png");
+          noneImg = p.loadImage("images/cross.png");
         };
+
         p.setup = function () {
-          p.createCanvas(400, 300);
+          p.createCanvas(500, 400);
           p.imageMode(p.CENTER);
 
-          // lets get these data
-          cups = [];
-          for (let i = 0; (i < 77) & (i < table.getRowCount()); i++) {
-            let intakeString = table.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
-            let intake = 0;
-            // the reason its here is ebcause draw() will run it every single frame
-            if (intakeString.includes("3+")) intake = 4;
-            else if (intakeString.includes("2-3")) intake = 2.5;
-            else if (intakeString.includes("1")) intake = 1;
+          responses = [];
 
-            cups.push(intake > 0 ? "full" : "empty");
+          for (let i = 0; i < table.getRowCount(); i++) {
+            let choice = table.getString(i, "choice").toLowerCase();
+
+            let type = "none";
+            // when in doubt if-else
+            if (
+              choice.includes("coffee") || // just makes sure it doesnt skip over these
+              choice.includes("tea") ||
+              choice.includes("hot")
+            ) {
+              type = "hot";
+            } else if (choice.includes("energy")) {
+              type = "energy";
+            } else if (choice.includes("fizzy")) {
+              type = "fizzy";
+            }
+
+            responses.push(type);
+            responses.sort(); // keeps it looking organised
+            // also allows for easier understanding of the data
           }
         };
 
         p.draw = function () {
           p.background(245);
-          let index = 0;
-          // this is for loop :D it goes thru grid n shld fill w full or empty cups based on data for the first 10 students
-          // i will do it for ALL the students... at some point
-          //NOTE complete before submission
-          for (let row = 0; row < numRows; row++) {
-            for (let col = 0; col < numCols; col++) {
-              let x = col * cellSize + cellSize;
-              let y = row * cellSize + cellSize;
 
-              if (index < cups.length) {
-                if (cups[index] === "full") {
-                  p.image(fullCup, x, y, cellSize, cellSize);
-                } else {
-                  p.image(emptyCup, x, y, cellSize, cellSize);
-                }
-              }
-              index++;
+          let cols = 10;
+          let size = 40;
+
+          // counts for legend
+          let hotCount = 0;
+          let energyCount = 0;
+          let fizzyCount = 0;
+          let noneCount = 0;
+
+          // draws the grid of icons based on the responses array, placing them in rows and columns
+          for (let i = 0; i < responses.length; i++) {
+            let row = Math.floor(i / cols);
+            let col = i % cols;
+
+            let x = col * size + size;
+            let y = row * size + size + 10; // extra room #annoying
+
+            let type = responses[i];
+
+            if (type === "hot") {
+              // haha if type === hot
+              p.image(hotImg, x, y, size, size);
+              hotCount++;
+            } else if (type === "energy") {
+              p.image(energyImg, x, y, size, size);
+              energyCount++;
+            } else if (type === "fizzy") {
+              p.image(fizzyImg, x, y, size, size);
+              fizzyCount++;
+            } else {
+              p.image(noneImg, x, y, size, size);
+              noneCount++;
             }
           }
-
-          let drinkerCount = cups.filter((cup) => cup === "full").length;
-          p.fill(0);
-          p.textSize(14);
-          p.textAlign(p.CENTER);
+          // subtitle
+          p.textSize(10);
+          p.fill(100);
           p.text(
-            `${drinkerCount} prefer hot drinks as a source of caffeine`,
-            p.width / 2,
-            p.height - 20,
+            `each icon = 1 student (n = ${responses.length})`,
+            p.width / 2 - 100,
+            20,
           );
+
+          // legend with counts for each category, placing the icons and text at the bottom of the canvas
+          let y = p.height - 20;
+          let spacing = 110;
+
+          p.textAlign(p.LEFT);
+          p.fill(0);
+          p.textSize(11);
+
+          // if type is hot, energy, fizzy, or none
+          // draw the correct icon
+          // and  text with count in the legend #legend
+          p.image(hotImg, 20, y - 5, 20, 20);
+          p.text(`hot (${hotCount})`, 35, y);
+
+          p.image(energyImg, 20 + spacing, y - 5, 20, 20);
+          p.text(`energy (${energyCount})`, 35 + spacing, y);
+
+          p.image(fizzyImg, 20 + spacing * 2, y - 5, 20, 20);
+          p.text(`fizzy (${fizzyCount})`, 35 + spacing * 2, y);
+
+          p.image(noneImg, 20 + spacing * 3, y - 5, 20, 20);
+          p.text(`none (${noneCount})`, 35 + spacing * 3, y);
         };
       }
-
-      **/
 
       // ========== DOT PLOT SKETCH =======
       // relationship between caffeine intake, stress, un/paid work
@@ -268,7 +334,7 @@
         };
 
         p.setup = function () {
-          p.createCanvas(400, 400);
+          p.createCanvas(500, 400);
           let sums = [0, 0, 0, 0];
           let counts = [0, 0, 0, 0];
 
@@ -363,6 +429,7 @@
             50,
           );
 
+          // side subtitle
           p.push();
           p.translate(25, p.height / 2);
           p.rotate(-p.HALF_PI);
@@ -478,6 +545,75 @@
             p.noStroke();
             p.ellipse(person.x, person.y, person.size);
           }
+        };
+      }
+
+       // ==================== hot drinks ISOTOPE SKETCH ====================
+      
+      function isotopeSketch(p) {
+        let table;
+        let numRows = 2;
+        let numCols = 5;
+        let cellSize = 50;
+        let cups = [];
+        p.preload = function () {
+          emptyCup = p.loadImage("images/blank-coffee.png");
+          fullCup = p.loadImage("images/black-coffee.png");
+          table = p.loadTable(
+            "data/students-caffeine-data.csv",
+            "csv",
+            "header",
+          );
+        };
+        p.setup = function () {
+          p.createCanvas(400, 300);
+          p.imageMode(p.CENTER);
+
+          // lets get these data
+          cups = [];
+          for (let i = 0; (i < 77) & (i < table.getRowCount()); i++) {
+            let intakeString = table.getString(i, "daily-intake"); // this is because data was collected poorly,, partially my bad
+            let intake = 0;
+            // the reason its here is ebcause draw() will run it every single frame
+            if (intakeString.includes("3+")) intake = 4;
+            else if (intakeString.includes("2-3")) intake = 2.5;
+            else if (intakeString.includes("1")) intake = 1;
+
+            cups.push(intake > 0 ? "full" : "empty");
+          }
+        };
+
+        p.draw = function () {
+          p.background(245);
+          let index = 0;
+          // this is for loop :D it goes thru grid n shld fill w full or empty cups based on data for the first 10 students
+          // i will do it for ALL the students... at some point
+          //NOTE complete before submission
+          for (let row = 0; row < numRows; row++) {
+            for (let col = 0; col < numCols; col++) {
+              let x = col * cellSize + cellSize;
+              let y = row * cellSize + cellSize;
+
+              if (index < cups.length) {
+                if (cups[index] === "full") {
+                  p.image(fullCup, x, y, cellSize, cellSize);
+                } else {
+                  p.image(emptyCup, x, y, cellSize, cellSize);
+                }
+              }
+              index++;
+            }
+          }
+
+          let drinkerCount = cups.filter((cup) => cup === "full").length;
+          p.fill(0);
+          p.textSize(14);
+          p.textAlign(p.CENTER);
+          p.text(
+            `${drinkerCount} prefer hot drinks as a source of caffeine`,
+            p.width / 2,
+            p.height - 20,
+          );
         };
       }
 
