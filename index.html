@@ -103,8 +103,8 @@
             } else if (choice.includes("fizzy")) {
               type = "fizzy";
             }
-             
-            responses.sort((a, b) => a.type.localeCompare(b.type));// keeps it organised by type of drink
+
+            responses.sort((a, b) => a.type.localeCompare(b.type)); // keeps it organised by type of drink
             responses.push({ type: type, scale: 1 }); //for hover effect, just to make it more interactive
 
             // also allows for easier understanding of the data
@@ -171,7 +171,7 @@
           // if type is hot, energy, fizzy, or none
           // draw the correct icon
           // and  text with count in the legend #legend
-      
+
           p.image(hotImg, 20, y - 5, 20, 20);
           p.text(`hot (${hotCount})`, 35, y);
 
@@ -192,9 +192,14 @@
       // thank you
       // there is a youtube video for everthing
 
+      // if u click the dot it shows each persons details
+      // shows how one persons entire story can be reduced to a dot on a plot
+      // and how data vis can never fully capture lived experiences!!
+
       function dotPlotSketch(p) {
         let people = [];
         let table;
+        let selected = null;
 
         p.preload = function () {
           table = p.loadTable(
@@ -220,6 +225,7 @@
 
         p.setup = function () {
           p.createCanvas(500, 500);
+          // the text boxes cut off a bit
 
           let yLevels = {
             0: 420,
@@ -248,6 +254,8 @@
 
             // unique key  for each work and intake combo
             // this is cuz we r stacking dots for ppl
+            // bc of the key i realized hey... this is where i can shove
+            // the rest of the data :D
             // need to offset otherwise its gonna look a whole mess
             // init
 
@@ -264,6 +272,11 @@
               x,
               y,
               stress,
+              intake: intakeStr,
+              work,
+              gender: table.getString(i, "gender"),
+              dept: table.getString(i, "department"),
+              ethnicity: table.getString(i, "ethnicity"),
             });
           }
         };
@@ -298,21 +311,62 @@
           p.textSize(12);
           p.textAlign(p.LEFT);
           p.text("percieved stress level", 150, 480);
-          p.fill(100, 180, 255);
-          p.ellipse(300, 475, 10);
-          p.fill(255, 205, 80);
-          p.ellipse(380, 475, 10);
-
-          p.fill(255, 90, 90);
-          p.ellipse(460, 475, 10);
-
+          p.fill(100, 180, 255); // blue
+          p.ellipse(300, 475, 10); // low stress
+          p.fill(255, 205, 80); // yellow
+          p.ellipse(380, 475, 10); // medium stress
+          p.fill(255, 90, 90); // red
+          p.ellipse(460, 475, 10); // high stress
+          // legend labelsss
           p.fill(0);
-
           p.textAlign(p.LEFT);
           p.textSize(10);
           p.text("0–3", 315, 480);
           p.text("4–7", 395, 480);
           p.text("8–10", 475, 480);
+
+          // hover box!!!
+
+          if (selected) {
+            // if dot is selected show the details in a box near the dot
+            let bx = selected.x + 14;
+            let by = selected.y - 80;
+
+            if (bx + 170 > p.width) bx = selected.x - 184;
+            if (by < 10) by = selected.y + 14;
+
+            // box
+            // ee err ee err
+            p.fill(194, 109, 154); // dusty pink :)
+            p.noStroke();
+            p.rect(bx, by, 300, 110, 8);
+
+            // text in the box
+            p.fill(255);
+            p.textAlign(p.LEFT);
+            p.textSize(10);
+            p.textLeading(16);
+
+            // detials for the selected dot
+            p.text(`stress: ${selected.stress}/10`, bx + 10, by + 18);
+            p.text(`intake: ${selected.intake}`, bx + 10, by + 34);
+            p.text(`paid work: ${selected.work}`, bx + 10, by + 50);
+            p.text(`gender: ${selected.gender}`, bx + 10, by + 66);
+            p.text(`dept: ${selected.dept}`, bx + 10, by + 82);
+            p.text(`ethnicity: ${selected.ethnicity}`, bx + 10, by + 98);
+          }
+        };
+        // mouse pressed, check if its near a dot, 
+        // if it is, set is as selected!!!
+        // and then yay details in the box :000
+        p.mousePressed = function () {
+          selected = null;
+          for (let person of people) {
+            if (p.dist(p.mouseX, p.mouseY, person.x, person.y) < 8) {
+              selected = person;
+              break;
+            }
+          }
         };
       }
 
