@@ -69,3 +69,13 @@ p, body > text {
 .viz-box:hover {
   box-shadow: 0 4px 24px rgba(107, 76, 59, 0.08);
 }
+.viz-caption {
+  font-family: 'Times New Roman', serif;
+  font-size: 0.85rem;
+  color: var(--brown-muted);
+  line-height: 1.7;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}

@@ -27,16 +27,36 @@
       <div class="viz-box">
         <h3>student's preferred caffeine source</h3>
         <div id="isotope-div"></div>
+        <p class="viz-caption">
+          each students preferred caffeine source is shown, but the
+          visualization may not capture the full complexity of their choices.
+          why someone may choose a hot drink over an energy drink can be
+          influenced by various factors such as taste preferences, cultural
+          influences, or even the social aspect of drinking hot beverages.
+        </p>
       </div>
 
       <div class="viz-box">
         <h3>perceived stress levels, paid/unpaid work, and caffeine intake</h3>
         <div id="dotplot-div"></div>
+        <p class="viz-caption">
+          a major fault in data visualization is reducing lived experiences into
+          simplified metrics. click on each dot to see their circumstances and
+          how data visualisation can never fully capture the complexities of
+          lived experiences.
+        </p>
       </div>
 
       <div class="viz-box">
         <h3>gender and caffeine consumption</h3>
         <div id="barchart-div"></div>
+        <p class="viz-caption">
+          data collection can lead to oversimplified representations of complex
+          realities. each person's caffeine consumption is reduced to a number
+          based on the ranges provided, and this demonstrates the importance of
+          thoughtful data collection and the limitations of data visualisation
+          in capturing the nuances of human experiences.
+        </p>
       </div>
     </div>
 
@@ -356,7 +376,7 @@
             p.text(`ethnicity: ${selected.ethnicity}`, bx + 10, by + 98);
           }
         };
-        // mouse pressed, check if its near a dot, 
+        // mouse pressed, check if its near a dot,
         // if it is, set is as selected!!!
         // and then yay details in the box :000
         p.mousePressed = function () {
