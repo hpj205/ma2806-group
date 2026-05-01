@@ -1,13 +1,28 @@
 # ma2806-group
 
 github repo:https://github.com/hpj205/ma2806-group
-github pages:
+github pages: https://hpj205.github.io/ma2806-group/
 
 project summary:
+>this project is three data visualisations loaded from an external csv file, with data we collected ourselves. we had 76 student participants across a range of uk universities, and investigated the relationship between social identity, labour, and caffeine usage.
 
 references to sources of inspo:
+>this playlist was veryyyyyy helpful!
+https://www.youtube.com/watch?v=BJIH1fciRFA&list=PLQOYjD_l2fgCSNoQmzr8V0K5M5duZSPfi
+//https://www.youtube.com/watch?v=Yf6n-QizlHA&t=247s
 
-description of dataset
+>lerp() gradient
+https://editor.p5js.org/kjhollen/sketches/IJDYFAJKm
+
+>p5js references
+https://p5js.org/reference/
+
+>w3 schools css to make it more visually pleasing
+https://www.w3schools.com/css/
+
+
+description of dataset:
+>the dataset is 76 participants with self reported information on their gender, year of study, department, preferred caffeinated beverage,
 
 overview of design, tehnically, other challenges
 
@@ -18,11 +33,3 @@ description of the group:
 > group roles
 > communication methods
 > inclusive approach to group work
-
-
-
-•	A summary of the project.
-•	References to key sources of inspiration with URLs or citations. 
-•	Description of your dataset including source, authors, publication date, and context.
-•	Overview of design/technical/other challenges with a description of how the project was collectivtly developed.
-•	A description of the group, including a summary of everyone’s role. You should outline your approach to group organisation, including communication methods (e.g., email, WhatsApp), workload distribution, and accountability measures. Describe agreements for conflict resolution and when to escalate concerns, and approach to consensus-building (e.g. voting, discussion). Highlight values guiding an inclusive approach to group work. And include any supporting information which provide a sense of the production process – through communication to development.   
